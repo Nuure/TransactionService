@@ -1,0 +1,177 @@
+openapi: 3.0.1
+info:
+  title: Transaction Service
+  version: 1.0.0
+  description: A service for managing accounts and processing money transfers
+
+paths:
+  /accounts:
+    post:
+      summary: Create account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountRequest'
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+
+  /accounts/{accountId}:
+    get:
+      summary: Get account information
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+        '404':
+          description: Account not found
+
+  /accounts/{accountId}/deposit:
+    post:
+      summary: Deposit money to account
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositRequest'
+      responses:
+        '200':
+          description: Deposit successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+        '400':
+          description: Currency mismatch or invalid amount
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transactions/transfer:
+    post:
+      summary: Transfer money from one account to another
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '200':
+          description: Transfer successful
+        '400':
+          description: Validation error or insufficient funds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+
+components:
+  schemas:
+    CreateAccountRequest:
+      type: object
+      required:
+        - currency
+      properties:
+        currency:
+          type: string
+          description: ISO4217 currency code (USD, EUR, etc.)
+
+    AccountDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+        balance:
+          type: number
+          format: double
+        currency:
+          type: string
+          description: ISO4217 currency code (USD, EUR, etc.)
+
+    DepositRequest:
+      type: object
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+          description: ISO4217 currency code (USD, EUR, etc.)
+
+    TransferRequest:
+      type: object
+      required:
+        - fromAccountId
+        - toAccountId
+        - amount
+        - currency
+      properties:
+        fromAccountId:
+          type: string
+        toAccountId:
+          type: string
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+          description: ISO4217 currency code (USD, EUR, etc.)
+
+    ErrorResponse:
+      type: object
+      required:
+        - errorCode
+        - message
+      properties:
+        errorCode:
+          type: string
+          example: CURRENCY_MISMATCH
+        message:
+          type: string
+          example: Cannot deposit with different currency
+        details:
+          type: array
+          items:
+            type: string
+

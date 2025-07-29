@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
 
-@ResponseStatus(HttpStatus.BAD_REQUEST )
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ValidationException extends RuntimeException {
     private final String errorCode;
     private final List<String> details;

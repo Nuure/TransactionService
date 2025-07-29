@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDto error = new ErrorResponseDto(
                 INVALID_FORMAT,
                 message,
-                List.of(exception.getLocalizedMessage())
+                List.of(exception.getMessage())
         );
 
         return ResponseEntity.badRequest().body(error);
